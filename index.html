@@ -6,6 +6,7 @@
     <meta name="viewport"
         content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
     <title>Lagos Dash</title>
+    <meta name="description" content="Beat the go-slow! Lagos Dash is a browser runner game set in Lagos. Dodge danfo, keke, potholes and the conductor.">
     <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Rubik:wght@500;700&display=swap"
         rel="stylesheet">
     <style>
@@ -121,7 +122,8 @@
             padding: 14px 34px;
             font: 22px Bungee, Impact, sans-serif;
             box-shadow: 0 5px 0 #8a6a00;
-            cursor: pointer
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent
         }
 
         #dg {
@@ -131,7 +133,8 @@
             border-radius: 14px;
             padding: 10px 26px;
             font: 16px Bungee, Impact, sans-serif;
-            cursor: pointer
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent
         }
 
         #dg:focus-visible {
@@ -147,6 +150,24 @@
         #go:focus-visible {
             outline: 3px solid #fff;
             outline-offset: 3px
+        }
+
+        #mute {
+            position: fixed;
+            bottom: calc(env(safe-area-inset-bottom, 0px) + 12px);
+            right: 14px;
+            background: #ffffff18;
+            border: 1px solid #ffffff30;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: all;
+            -webkit-tap-highlight-color: transparent
         }
 
         .hide {
@@ -171,11 +192,108 @@
         <p id="how">Swipe left / right to change lane · up to jump · down to slide<br>(Keyboard: arrows or WASD)</p>
         <button id="go">Run</button><button id="dg">Daily run</button>
     </div>
+    <button id="mute" title="Toggle sound" aria-label="Toggle sound">🔊</button>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
+        // ── Audio Engine (Web Audio API – zero external files) ────────────────
+        let AC, muted = false, musicNodes = [], musicPlaying = false;
+        function getAC() { if (!AC) AC = new (window.AudioContext || window.webkitAudioContext)(); return AC }
+
+        function sfx(type, freq, dur, vol, bend, shape) {
+            try {
+                const ac = getAC(); const g = ac.createGain(); g.gain.setValueAtTime(vol || .25, ac.currentTime);
+                g.gain.exponentialRampToValueAtTime(.001, ac.currentTime + (dur || .18));
+                const o = ac.createOscillator(); o.type = shape || 'square';
+                o.frequency.setValueAtTime(freq || 220, ac.currentTime);
+                if (bend) o.frequency.exponentialRampToValueAtTime(bend, ac.currentTime + (dur || .18));
+                o.connect(g); g.connect(ac.destination); o.start(); o.stop(ac.currentTime + (dur || .18) + .01);
+            } catch (e) { }
+        }
+        function sfxNoise(dur, vol, fLow, fHigh) {
+            try {
+                const ac = getAC(); const len = ac.sampleRate * dur;
+                const buf = ac.createBuffer(1, len, ac.sampleRate); const d = buf.getChannelData(0);
+                for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+                const src = ac.createBufferSource(); src.buffer = buf;
+                const filt = ac.createBiquadFilter(); filt.type = 'bandpass'; filt.frequency.value = (fLow + fHigh) / 2; filt.Q.value = 1;
+                const g = ac.createGain(); g.gain.setValueAtTime(vol, ac.currentTime); g.gain.exponentialRampToValueAtTime(.001, ac.currentTime + dur);
+                src.connect(filt); filt.connect(g); g.connect(ac.destination); src.start(); src.stop(ac.currentTime + dur + .01);
+            } catch (e) { }
+        }
+
+        function sndJump()   { sfx('triangle', 260, .14, .22, 520) }
+        function sndSlide()  { sfxNoise(.1, .18, 200, 800); sfx('sawtooth', 120, .1, .12, 60) }
+        function sndCoin()   { sfx('triangle', 880, .09, .18, 1320); }
+        function sndJollof() { sfx('square', 300, .08, .2, 600); sfx('square', 600, .15, .18, 1200) }
+        function sndShield() { sfx('sine', 440, .2, .2, 880) }
+        function sndHit()    { sfxNoise(.22, .35, 80, 400); sfx('sawtooth', 80, .18, .3, 40) }
+        function sndOver()   { sfx('sawtooth', 220, .4, .3, 55, 'sawtooth'); }
+        function sndDistrict(){ sfx('triangle', 660, .12, .2, 880); sfx('triangle', 880, .12, .2, 1100) }
+
+        // ── Afrobeats drum loop ───────────────────────────────────────────────
+        let beatStep = 0, beatTimer = null;
+        // 16-step patterns (1=on, 0=off) at ~112bpm
+        const KICK  = [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0];
+        const SNARE = [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0];
+        const HIHAT = [1,0,1,1,0,1,1,0,1,0,1,1,0,1,1,0];
+        const STEP_MS = (60000 / 112) / 4; // 16th note at 112bpm ≈ 133ms
+
+        function beatTick() {
+            if (muted) { beatTimer = setTimeout(beatTick, STEP_MS); return; }
+            try {
+                const ac = getAC(); const t = ac.currentTime;
+                if (KICK[beatStep]) {
+                    // kick: sine swept down
+                    const o = ac.createOscillator(), g = ac.createGain();
+                    o.frequency.setValueAtTime(160, t); o.frequency.exponentialRampToValueAtTime(30, t + .12);
+                    g.gain.setValueAtTime(.5, t); g.gain.exponentialRampToValueAtTime(.001, t + .15);
+                    o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t + .16);
+                }
+                if (SNARE[beatStep]) {
+                    // snare: noise burst + body tone
+                    const len = Math.ceil(ac.sampleRate * .1);
+                    const buf = ac.createBuffer(1, len, ac.sampleRate); const d = buf.getChannelData(0);
+                    for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+                    const src = ac.createBufferSource(); src.buffer = buf;
+                    const f = ac.createBiquadFilter(); f.type = 'highpass'; f.frequency.value = 1000;
+                    const g = ac.createGain(); g.gain.setValueAtTime(.28, t); g.gain.exponentialRampToValueAtTime(.001, t + .12);
+                    src.connect(f); f.connect(g); g.connect(ac.destination); src.start(t); src.stop(t + .13);
+                }
+                if (HIHAT[beatStep]) {
+                    const len = Math.ceil(ac.sampleRate * .04);
+                    const buf = ac.createBuffer(1, len, ac.sampleRate); const d = buf.getChannelData(0);
+                    for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+                    const src = ac.createBufferSource(); src.buffer = buf;
+                    const f = ac.createBiquadFilter(); f.type = 'highpass'; f.frequency.value = 7000;
+                    const g = ac.createGain(); g.gain.setValueAtTime(.1, t); g.gain.exponentialRampToValueAtTime(.001, t + .04);
+                    src.connect(f); f.connect(g); g.connect(ac.destination); src.start(t); src.stop(t + .05);
+                }
+            } catch (e) { }
+            beatStep = (beatStep + 1) % 16;
+            beatTimer = setTimeout(beatTick, STEP_MS);
+        }
+        function startMusic() { if (!musicPlaying && !muted) { musicPlaying = true; beatTick(); } }
+        function stopMusic()  { if (beatTimer) { clearTimeout(beatTimer); beatTimer = null; } musicPlaying = false; beatStep = 0; }
+
+        // Mute button
+        const muteBtn = document.getElementById('mute');
+        muteBtn.onclick = () => {
+            muted = !muted;
+            muteBtn.textContent = muted ? '🔇' : '🔊';
+            if (muted) stopMusic();
+            else if (typeof st !== 'undefined' && st === 'play') { musicPlaying = false; beatTick(); }
+        };
+        // Pause music when tab hidden
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) stopMusic();
+            else if (!muted && typeof st !== 'undefined' && st === 'play') { musicPlaying = false; beatTick(); }
+        });
+
+        // ── Three.js setup ───────────────────────────────────────────────────
         const $ = i => document.getElementById(i), LX = [-2.4, 0, 2.4];
         const R = new THREE.WebGLRenderer({ canvas: $('c'), antialias: false });
-        let pr = Math.min(devicePixelRatio || 1, 1.5);
+        // Start at pr=1 for widest device compatibility; step up only if fps is confirmed good
+        let pr = 1;
         const S = new THREE.Scene(), cam = new THREE.PerspectiveCamera(62, 1, .1, 120);
         function size() { R.setPixelRatio(pr); R.setSize(innerWidth, innerHeight, false); cam.aspect = innerWidth / innerHeight; cam.updateProjectionMatrix() }
         addEventListener('resize', size); size();
@@ -188,12 +306,12 @@
         // districts
         const D = [{ n: 'Yaba', c: 0xffb36b }, { n: 'Ikeja', c: 0x9fd8e8 }, { n: 'Third Mainland Bridge', c: 0xf59ab0 }, { n: 'Lekki', c: 0x8a7bd8 }], DL = 700;
         const PAL = ['#e8d5b0', '#c96a3a', '#7fb7a4', '#d9c14a', '#8a6fb0', '#f2efe6', '#d65a5a'];
-        // world
+        // world – trimmed scenery for performance
         box(15, .2, 220, '#2b2d33', 0, -.1, -90); box(6, .3, 220, '#8d8a80', -10.5, -.05, -90); box(6, .3, 220, '#8d8a80', 10.5, -.05, -90);
         const dashes = [], bld = [];
-        for (let i = 0; i < 14; i++)for (const x of [-1.2, 1.2]) dashes.push(box(.18, .02, 2.6, '#f4f0e0', x, .02, -i * 9));
+        for (let i = 0; i < 10; i++) for (const x of [-1.2, 1.2]) dashes.push(box(.18, .02, 2.6, '#f4f0e0', x, .02, -i * 9));
         function mkB(z, s) { const h = 5 + Math.random() * 13, w = 3 + Math.random() * 3; const m = box(w, h, 5 + Math.random() * 3, PAL[Math.random() * PAL.length | 0], s * (8.2 + w / 2), h / 2, z); bld.push({ m, s, w }); }
-        for (let i = 0; i < 16; i++) { mkB(-i * 8, -1); mkB(-i * 8, 1) }
+        for (let i = 0; i < 10; i++) { mkB(-i * 8, -1); mkB(-i * 8, 1) }
         // figures
         function figure(shirt, skin, cap) {
             const g = new THREE.Group();
@@ -204,9 +322,10 @@
             g.u = { l1, l2, a1, a2, torso }; return g
         }
         function anim(g, t, k) { const u = g.u, s = Math.sin(t) * k; u.l1.rotation.x = s; u.l2.rotation.x = -s; u.a1.rotation.x = -s; u.a2.rotation.x = s }
-        const P = figure('#0a7d3e', '#7a4a2b'), sh = new THREE.Mesh(new THREE.CircleGeometry(.6, 12), new THREE.MeshBasicMaterial({ color: 0, transparent: true, opacity: .35 }));
+        const P = figure('#0a7d3e', '#7a4a2b'), sh = new THREE.Mesh(new THREE.CircleGeometry(.6, 8), new THREE.MeshBasicMaterial({ color: 0, transparent: true, opacity: .35 }));
         sh.rotation.x = -Math.PI / 2; sh.position.y = .03; S.add(P); S.add(sh);
-        const CD = figure('#fff8e8', '#5a3820', '#c0392b'); CD.scale.setScalar(1.15); S.add(CD); const aura = new THREE.Mesh(new THREE.SphereGeometry(1.5, 12, 10), new THREE.MeshBasicMaterial({ color: '#4aa8ff', transparent: true, opacity: .28 })); aura.visible = false; S.add(aura);
+        const CD = figure('#fff8e8', '#5a3820', '#c0392b'); CD.scale.setScalar(1.15); S.add(CD);
+        const aura = new THREE.Mesh(new THREE.SphereGeometry(1.5, 8, 6), new THREE.MeshBasicMaterial({ color: '#4aa8ff', transparent: true, opacity: .28 })); aura.visible = false; S.add(aura);
         // obstacles
         function danfo() {
             const g = new THREE.Group(); box(2, 1.5, 4.2, Y, 0, 1, 0, g); box(2.04, .28, 4.24, K, 0, .9, 0, g); box(2.02, .5, 3.4, '#222', 0, 1.55, 0, g); box(1.9, .12, 4, Y, 0, 1.8, 0, g);
@@ -216,12 +335,12 @@
             const g = new THREE.Group(); box(1.5, 1, 2.2, G, 0, .8, 0, g); box(1.6, .12, 2.3, Y, 0, 1.4, 0, g); box(1.3, .4, .1, '#222', 0, 1.05, 1.1, g);
             for (const x of [-.7, .7]) box(.2, .6, .6, K, x, .3, .6, g); box(.3, .5, .5, K, 0, .25, -.9, g); return g
         }
-        function pothole() { const m = new THREE.Mesh(new THREE.CylinderGeometry(1, 1, .06, 10), mat('#0e0f12')); m.position.y = .04; const g = new THREE.Group(); g.add(m); return g }
+        function pothole() { const m = new THREE.Mesh(new THREE.CylinderGeometry(1, 1, .06, 8), mat('#0e0f12')); m.position.y = .04; const g = new THREE.Group(); g.add(m); return g }
         function bridge() { const g = new THREE.Group(); for (const x of [-1.15, 1.15]) box(.25, 2.8, .25, '#444', x, 1.4, 0, g); box(2.6, 1.2, .3, G, 0, 2.0, 0, g); box(2.2, .3, .34, Y, 0, 2.0, 0, g); return g }
         function hawker() { const g = figure('#c0392b', '#8a5a38'); box(1.3, .3, 1, '#f2efe6', 0, 2.45, 0, g); box(.9, .3, .7, '#ff8c1a', 0, 2.75, 0, g); return g }
         function flood() { const g = new THREE.Group(); box(14.2, .05, 5, '#4a90b8', 0, .03, 0, g); box(14.2, .02, 5.2, '#2f6f94', 0, .015, 0, g); return g }
         const OT = { danfo: { f: danfo, hd: 2.1 }, keke: { f: keke, hd: 1.1 }, pot: { f: pothole, hd: 1 }, bridge: { f: bridge, hd: .4 }, hawker: { f: hawker, hd: .5 }, flood: { f: flood, hd: 2.5 } };
-        const jolG = new THREE.CylinderGeometry(.55, .45, .35, 10), jolM = new THREE.MeshLambertMaterial({ color: '#e8501c', emissive: '#7a2208' }), shG = new THREE.OctahedronGeometry(.55), shM = new THREE.MeshLambertMaterial({ color: '#4aa8ff', emissive: '#1b4f8a' });
+        const jolG = new THREE.CylinderGeometry(.55, .45, .35, 8), jolM = new THREE.MeshLambertMaterial({ color: '#e8501c', emissive: '#7a2208' }), shG = new THREE.OctahedronGeometry(.55), shM = new THREE.MeshLambertMaterial({ color: '#4aa8ff', emissive: '#1b4f8a' });
         const coinG = new THREE.BoxGeometry(.8, .45, .06), coinM = new THREE.MeshLambertMaterial({ color: '#2fa85a', emissive: '#0b4a22' });
         // state
         let st = 'menu', objs = [], coins = [], dist = 0, spd = 22, lane = 1, px = 0, py = 0, vy = 0, slide = 0, hits = 0, inv = 0, nrs = 0, tm = 0, sinceSpawn = 0, best = 0, dIdx = 0, shake = 0, boost = 0, shield = false, daily = false, rs = 1;
@@ -237,56 +356,72 @@
             const ls = ty === 'flood' ? [1] : a.slice(0, blocker ? 1 + (rnd() < .5) : 1 + (rnd() * 3 | 0));
             for (const l of ls) { const m = OT[ty].f(); m.position.set(ty === 'flood' ? 0 : LX[l], 0, z); S.add(m); objs.push({ m, ty, l, hd: OT[ty].hd, ph: rnd() * 6, t: 0 }) }
             const free = ty === 'flood' ? [0, 1, 2] : [0, 1, 2].filter(l => !ls.includes(l));
-            if (free.length && rnd() < .8) { const l = free[rnd() * free.length | 0]; for (let i = 0; i < 5; i++)pick('coin', LX[l], z - i * 2.6, l) }
+            if (free.length && rnd() < .8) { const l = free[rnd() * free.length | 0]; for (let i = 0; i < 5; i++) pick('coin', LX[l], z - i * 2.6, l) }
             const q = rnd(); if (q < .14 && free.length) { const l = free[free.length - 1]; pick(q < .07 ? 'jollof' : 'shield', LX[l], z - 14, l) }
         }
         function hit() {
             if (inv > 0 || boost > 0) return;
-            if (shield) { shield = false; aura.visible = false; inv = 1; shake = .3; toast('Shield popped!'); return }
-            shake = .4;
+            if (shield) { shield = false; aura.visible = false; inv = 1; shake = .3; sndHit(); toast('Shield popped!'); return }
+            sndHit(); shake = .4;
             if (CD.position.z < 4.2) return over();
             hits++; inv = 1.3; CD.position.z = 2.6; toast('Pay your fare!'); spd = Math.max(20, spd * .85)
         }
         function over() {
+            stopMusic();
+            sndOver();
             st = 'over'; const sc = score(), key = daily ? 'ld_d' + dk : 'ld_best'; let b = 0; try { b = +localStorage.getItem(key) || 0 } catch (e) { }
             if (sc > b) { b = sc; try { localStorage.setItem(key, b) } catch (e) { } }
             $('h').innerHTML = daily ? 'Daily<br>done' : 'Caught!'; $('msg').textContent = 'Score ' + sc + ' · ₦' + nrs + ' collected · ' + (daily ? "Today's best " : 'Best ') + b;
             $('how').textContent = daily ? 'Same course for everyone today. A new one tomorrow.' : 'The conductor got his fare.'; $('go').textContent = 'Run again'; $('ov').classList.remove('hide')
         }
         const score = () => Math.floor(dist) + nrs * 10;
-        function start(d) { daily = !!d; reset(); st = 'play'; $('ov').classList.add('hide') }
+        function start(d) {
+            // Resume AudioContext on first user gesture (browser autoplay policy)
+            try { getAC().resume() } catch(e) {}
+            daily = !!d; reset(); st = 'play'; $('ov').classList.add('hide');
+            stopMusic(); musicPlaying = false; beatStep = 0;
+            if (!muted) setTimeout(startMusic, 200);
+        }
         $('go').onclick = () => start(false); $('dg').onclick = () => start(true);
         // input
         function act(a) {
             if (st !== 'play') return;
             if (a === 'L' && lane > 0) lane--; if (a === 'R' && lane < 2) lane++;
-            if (a === 'U' && py < .05) { vy = 13; slide = 0 }
-            if (a === 'D') { slide = .7; if (py > .05) vy = -22 }
+            if (a === 'U' && py < .05) { vy = 13; slide = 0; sndJump() }
+            if (a === 'D') { slide = .7; sndSlide(); if (py > .05) vy = -22 }
         }
         addEventListener('keydown', e => {
             const k = e.key;
-            if (st !== 'play') { if (k === 'Enter' || k === ' ') start(); return }
+            if (st !== 'play') { if (k === 'Enter' || k === ' ') { try { getAC().resume() } catch(e) {} start(); } return }
             if (k === 'ArrowLeft' || k === 'a') act('L'); else if (k === 'ArrowRight' || k === 'd') act('R'); else if (k === 'ArrowUp' || k === 'w' || k === ' ') act('U'); else if (k === 'ArrowDown' || k === 's') act('D');
             if (k.startsWith('Arrow') || k === ' ') e.preventDefault()
         });
         let tx = 0, ty0 = 0, done = false;
-        addEventListener('touchstart', e => { if (/^(go|dg)$/.test(e.target.id)) return; const t = e.touches[0]; tx = t.clientX; ty0 = t.clientY; done = false }, { passive: true });
+        addEventListener('touchstart', e => { if (/^(go|dg|mute)$/.test(e.target.id)) return; const t = e.touches[0]; tx = t.clientX; ty0 = t.clientY; done = false }, { passive: true });
         addEventListener('touchmove', e => {
             if (done) return; const t = e.touches[0], dx = t.clientX - tx, dy = t.clientY - ty0;
             if (Math.max(Math.abs(dx), Math.abs(dy)) > 28) { done = true; Math.abs(dx) > Math.abs(dy) ? act(dx < 0 ? 'L' : 'R') : act(dy < 0 ? 'U' : 'D') }
         }, { passive: true });
-        addEventListener('touchend', e => { if (!done && !/^(go|dg)$/.test(e.target.id)) act('U') }, { passive: true });
+        addEventListener('touchend', e => { if (!done && !/^(go|dg|mute)$/.test(e.target.id)) act('U') }, { passive: true });
         // loop
         let last = performance.now(), fa = 0, fn = 0, adapted = false;
         function frame(now) {
             requestAnimationFrame(frame);
             const dt = Math.min((now - last) / 1000, .05); last = now; tm += dt;
-            fa += dt; fn++; if (fn === 90) { if (!adapted && 90 / fa < 38 && pr > 1) { pr = 1; size() } adapted = true; fa = 0; fn = 0 }
+            // adaptive quality: if fps is good after 90 frames, allow pr=1.5 on retina
+            fa += dt; fn++; if (fn === 90) {
+                if (!adapted) {
+                    const fps = 90 / fa;
+                    if (fps >= 55 && devicePixelRatio > 1) { pr = Math.min(devicePixelRatio, 1.5); size(); }
+                    else if (fps < 38 && pr > 1) { pr = 1; size(); }
+                }
+                adapted = true; fa = 0; fn = 0;
+            }
             const play = st === 'play'; let v = play ? (boost > 0 ? spd * 1.6 : spd) : 6;
             if (play) {
                 spd = Math.min(44, spd + .35 * dt); dist += v * dt * .1; sinceSpawn += v * dt; inv -= dt; boost -= dt; aura.position.set(px, 1.2, 0); aura.rotation.y += dt * 3;
                 if (sinceSpawn > Math.max(15, 26 - spd * .28)) { sinceSpawn = 0; spawn() }
-                const di = Math.min(3, dist / DL | 0); if (di !== dIdx) { dIdx = di; tgt.set(D[di].c); $('dn').textContent = D[di].n; toast(D[di].n) }
+                const di = Math.min(3, dist / DL | 0); if (di !== dIdx) { dIdx = di; tgt.set(D[di].c); $('dn').textContent = D[di].n; toast(D[di].n); sndDistrict() }
                 px += (LX[lane] - px) * Math.min(1, dt * 14);
                 vy -= 38 * dt; py += vy * dt; if (py < 0) { py = 0; vy = 0 }
                 slide -= dt; const sl = slide > 0 && py < .05;
@@ -307,14 +442,20 @@
                 }
                 for (let i = coins.length - 1; i >= 0; i--) {
                     const c = coins[i], m = c.m; m.position.z += v * dt; m.rotation.y += dt * 4;
-                    if (Math.abs(m.position.x - px) < 1 && Math.abs(m.position.z) < .9 && py < 1.9) { S.remove(m); coins.splice(i, 1); if (c.k === 'coin') nrs++; else if (c.k === 'jollof') { boost = 4; toast('Jollof sprint!') } else { shield = true; aura.visible = true; toast('Shield on') } continue }
+                    if (Math.abs(m.position.x - px) < 1 && Math.abs(m.position.z) < .9 && py < 1.9) {
+                        S.remove(m); coins.splice(i, 1);
+                        if (c.k === 'coin') { nrs++; sndCoin(); }
+                        else if (c.k === 'jollof') { boost = 4; sndJollof(); toast('Jollof sprint!') }
+                        else { shield = true; aura.visible = true; sndShield(); toast('Shield on') }
+                        continue
+                    }
                     if (m.position.z > 10) { S.remove(m); coins.splice(i, 1) }
                 }
                 $('sc').textContent = score(); $('co').textContent = '₦' + nrs;
             } else { P.position.set(0, 0, 0); anim(P, tm * 10, .7); CD.position.z = 8 }
             // scenery
-            for (const d of dashes) { d.position.z += v * dt; if (d.position.z > 8) d.position.z -= 126 }
-            for (const b of bld) { b.m.position.z += v * dt; if (b.m.position.z > 12) { b.m.position.z -= 128; b.m.material = mat(PAL[Math.random() * PAL.length | 0]) } }
+            for (const d of dashes) { d.position.z += v * dt; if (d.position.z > 8) d.position.z -= 90 }
+            for (const b of bld) { b.m.position.z += v * dt; if (b.m.position.z > 12) { b.m.position.z -= 80; b.m.material = mat(PAL[Math.random() * PAL.length | 0]) } }
             const tf = boost > 0 ? 76 : 62; if (Math.abs(cam.fov - tf) > .1) { cam.fov += (tf - cam.fov) * Math.min(1, dt * 6); cam.updateProjectionMatrix() }
             S.background.lerp(tgt, dt * .8); S.fog.color.copy(S.background);
             shake = Math.max(0, shake - dt);
