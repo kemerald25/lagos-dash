@@ -11,5 +11,5 @@ export async function POST(request) {
       if (n <= 2) { await redis("INCR", "g:" + a.pid); counted = true }
     }
     return json({ gems: await getGems(a.pid), counted })
-  } catch { return json({ error: "error" }, 500) }
+  } catch (e) { console.error("gem-found", e?.message || e); return json({ error: "error" }, 500) }
 }

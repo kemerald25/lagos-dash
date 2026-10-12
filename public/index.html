@@ -593,7 +593,7 @@
         function cloudSave() { if (!V) return; clearTimeout(saveT); saveT = setTimeout(() => srv('/api/save', { wallet, owned, eq }), 1500) }
         async function claim(p) {
             const r = await srv('/api/claim', { purchaseId: p.purchaseId });
-            if (r.ok) { gems = r.json.gems; updG(); $('smsg').textContent = '💎 Gems added!' }
+           if (r.ok) { gems = r.json.gems; updG(); $('smsg').textContent = '💎 Gems added!' } else $('smsg').textContent = 'Paid, but the gems are not added yet. Reopen the game and they will arrive.'
         }
         function buyGems(id) { if (!V) return; $('smsg').textContent = ''; Vatar.purchase(id).then(claim).catch(e => { if (e.code !== 'cancelled') $('smsg').textContent = 'The payment did not go through.' }) }
         function gemFound() {

@@ -5,5 +5,5 @@ export async function POST(request) {
     const n = await redis("DECR", "g:" + a.pid)
     if (n < 0) { await redis("INCR", "g:" + a.pid); return json({ error: "no_gems" }, 402) }
     return json({ gems: n })
-  } catch { return json({ error: "error" }, 500) }
+  } catch (e) { console.error("spend-gem", e?.message || e); return json({ error: "error" }, 500) }
 }

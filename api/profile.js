@@ -4,5 +4,5 @@ export async function POST(request) {
     const a = await authed(request); if (a.res) return a.res
     const p = JSON.parse((await redis("GET", "p:" + a.pid)) || "null") || { wallet: 0, owned: ["green"], eq: "green" }
     return json({ gems: await getGems(a.pid), ...p })
-  } catch { return json({ error: "error" }, 500) }
+  } catch (e) { console.error("profile", e?.message || e); return json({ error: "error" }, 500) }
 }

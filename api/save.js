@@ -7,5 +7,5 @@ export async function POST(request) {
     const p = { wallet: Number.isFinite(w) ? Math.max(0, Math.min(1e7, Math.floor(w))) : 0, owned, eq: owned.includes(a.body.eq) ? a.body.eq : "green" }
     await redis("SET", "p:" + a.pid, JSON.stringify(p))
     return json({})
-  } catch { return json({ error: "error" }, 500) }
+  } catch (e) { console.error("save", e?.message || e); return json({ error: "error" }, 500) }
 }
