@@ -6,7 +6,8 @@
     <meta name="viewport"
         content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
     <title>Lagos Dash</title>
-    <meta name="description" content="Beat the go-slow! Lagos Dash is a browser runner game set in Lagos. Dodge danfo, keke, potholes and the conductor.">
+    <meta name="description"
+        content="Beat the go-slow! Lagos Dash is a browser runner game set in Lagos. Dodge danfo, keke, potholes and the conductor.">
     <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Rubik:wght@500;700&display=swap"
         rel="stylesheet">
     <style>
@@ -145,7 +146,15 @@
             -webkit-tap-highlight-color: transparent
         }
 
-        #dg:focus-visible, #sb:focus-visible, #bk:focus-visible, #lbb:focus-visible, #en:focus-visible, #lbk:focus-visible, #cn:focus-visible, #tabs button:focus-visible, .card button:focus-visible {
+        #dg:focus-visible,
+        #sb:focus-visible,
+        #bk:focus-visible,
+        #lbb:focus-visible,
+        #en:focus-visible,
+        #lbk:focus-visible,
+        #cn:focus-visible,
+        #tabs button:focus-visible,
+        .card button:focus-visible {
             outline: 3px solid #fff;
             outline-offset: 3px
         }
@@ -179,24 +188,181 @@
             -webkit-tap-highlight-color: transparent
         }
 
-        #shop,#lb{position:fixed;inset:0;z-index:20;background:#16181df5;display:flex;flex-direction:column;align-items:center;padding:calc(env(safe-area-inset-top,0px) + 16px) 16px calc(env(safe-area-inset-bottom,0px) + 16px);gap:12px;overflow:auto;touch-action:pan-y}
-        #shop h2,#lb h2{font:28px Bungee,Impact,sans-serif;color:var(--y);margin:0}
-        #wal{font:20px Bungee,Impact,sans-serif;color:#b8f5c9}
-        #grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;width:100%;max-width:380px}
-        .card{background:#ffffff12;border:2px solid #ffffff22;border-radius:14px;padding:10px;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center}
-        .card.on{border-color:var(--y)}.card b{font-size:14px}
-        .fig{display:flex;flex-direction:column;align-items:center;gap:2px}
-        .fig i{display:block;width:26px;height:26px;border-radius:50%}
-        .fig i:nth-child(2){width:46px;height:36px;border-radius:8px}.fig i:nth-child(3){width:34px;height:28px;border-radius:6px}
-        .card button{background:var(--y);color:var(--k);border:0;border-radius:10px;padding:8px 14px;font:14px Bungee,Impact,sans-serif;cursor:pointer;min-width:96px}
-        .card button:disabled{background:#ffffff30;color:var(--w);cursor:default}.card button.no{background:#ffffff25;color:#ffffffaa}
-        #tabs{display:flex;gap:8px}#tabs button{background:#ffffff18;color:var(--w);border:2px solid #ffffff30;border-radius:10px;padding:8px 14px;font:13px Bungee,Impact,sans-serif;cursor:pointer}#tabs button.on{background:var(--y);color:var(--k);border-color:var(--y)}
-        #lbl{width:100%;max-width:380px;display:flex;flex-direction:column;gap:6px}
-        .row{display:grid;grid-template-columns:34px 1fr auto;gap:8px;align-items:center;background:#ffffff12;border-radius:10px;padding:10px 12px;font-size:15px}.row.me{outline:2px solid var(--y)}
-        .row span:first-child,.row span:last-child{font-family:Bungee,Impact,sans-serif}.row span:first-child{color:var(--y)}
-        #lbn{font-size:13px;opacity:.9;text-align:center;max-width:340px;min-height:16px}
-        #gemrow{display:flex;gap:10px}
-        #smsg{min-height:18px;font-size:14px;color:var(--y)}
+        #shop,
+        #lb {
+            position: fixed;
+            inset: 0;
+            z-index: 20;
+            background: #16181df5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: calc(env(safe-area-inset-top, 0px) + 16px) 16px calc(env(safe-area-inset-bottom, 0px) + 16px);
+            gap: 12px;
+            overflow: auto;
+            touch-action: pan-y
+        }
+
+        #shop h2,
+        #lb h2 {
+            font: 28px Bungee, Impact, sans-serif;
+            color: var(--y);
+            margin: 0
+        }
+
+        #wal {
+            font: 20px Bungee, Impact, sans-serif;
+            color: #b8f5c9
+        }
+
+        #grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            width: 100%;
+            max-width: 380px
+        }
+
+        .card {
+            background: #ffffff12;
+            border: 2px solid #ffffff22;
+            border-radius: 14px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            text-align: center
+        }
+
+        .card.on {
+            border-color: var(--y)
+        }
+
+        .card b {
+            font-size: 14px
+        }
+
+        .fig {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px
+        }
+
+        .fig i {
+            display: block;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%
+        }
+
+        .fig i:nth-child(2) {
+            width: 46px;
+            height: 36px;
+            border-radius: 8px
+        }
+
+        .fig i:nth-child(3) {
+            width: 34px;
+            height: 28px;
+            border-radius: 6px
+        }
+
+        .card button {
+            background: var(--y);
+            color: var(--k);
+            border: 0;
+            border-radius: 10px;
+            padding: 8px 14px;
+            font: 14px Bungee, Impact, sans-serif;
+            cursor: pointer;
+            min-width: 96px
+        }
+
+        .card button:disabled {
+            background: #ffffff30;
+            color: var(--w);
+            cursor: default
+        }
+
+        .card button.no {
+            background: #ffffff25;
+            color: #ffffffaa
+        }
+
+        #tabs {
+            display: flex;
+            gap: 8px
+        }
+
+        #tabs button {
+            background: #ffffff18;
+            color: var(--w);
+            border: 2px solid #ffffff30;
+            border-radius: 10px;
+            padding: 8px 14px;
+            font: 13px Bungee, Impact, sans-serif;
+            cursor: pointer
+        }
+
+        #tabs button.on {
+            background: var(--y);
+            color: var(--k);
+            border-color: var(--y)
+        }
+
+        #lbl {
+            width: 100%;
+            max-width: 380px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: 34px 1fr auto;
+            gap: 8px;
+            align-items: center;
+            background: #ffffff12;
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-size: 15px
+        }
+
+        .row.me {
+            outline: 2px solid var(--y)
+        }
+
+        .row span:first-child,
+        .row span:last-child {
+            font-family: Bungee, Impact, sans-serif
+        }
+
+        .row span:first-child {
+            color: var(--y)
+        }
+
+        #lbn {
+            font-size: 13px;
+            opacity: .9;
+            text-align: center;
+            max-width: 340px;
+            min-height: 16px
+        }
+
+        #gemrow {
+            display: flex;
+            gap: 10px
+        }
+
+        #smsg {
+            min-height: 18px;
+            font-size: 14px;
+            color: var(--y)
+        }
+
         .hide {
             display: none !important
         }
@@ -217,10 +383,22 @@
             conductor catch you. Grab jollof for a speed sprint and the blue orb for a shield. Daily run is the same
             course for everyone today.</p>
         <p id="how">Swipe left / right to change lane · up to jump · down to slide<br>(Keyboard: arrows or WASD)</p>
-        <button id="go">Run</button><button id="dg">Daily run</button><button id="sb">Outfits</button><button id="lbb">Leaderboard</button><button id="cn" class="hide">Continue</button><button id="en" class="hide">End run</button>
+        <button id="go">Run</button><button id="dg">Daily run</button><button id="sb">Outfits</button><button
+            id="lbb">Leaderboard</button><button id="cn" class="hide">Continue</button><button id="en" class="hide">End
+            run</button>
     </div>
-    <div id="lb" class="hide"><h2>Leaderboard</h2><div id="lbn"></div><div id="lbl"></div><button id="lbk">Back</button></div>
-    <div id="shop" class="hide"><h2>Outfits &amp; gems</h2><div id="wal">₦0</div><div id="smsg"></div><div id="gemrow" class="hide"><button id="g1">💎 1 · ₦100</button><button id="g5">💎 5 · ₦400</button></div><div id="grid"></div><button id="bk">Back</button></div>
+    <div id="lb" class="hide">
+        <h2>Leaderboard</h2>
+        <div id="lbn"></div>
+        <div id="lbl"></div><button id="lbk">Back</button>
+    </div>
+    <div id="shop" class="hide">
+        <h2>Outfits &amp; gems</h2>
+        <div id="wal">₦0</div>
+        <div id="smsg"></div>
+        <div id="gemrow" class="hide"><button id="g1">💎 1 · ₦100</button><button id="g5">💎 5 · ₦400</button></div>
+        <div id="grid"></div><button id="bk">Back</button>
+    </div>
     <button id="mute" title="Toggle sound" aria-label="Toggle sound">🔊</button>
     <script src="https://lagoslife.app/sdk/vatar-games-v1.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -251,21 +429,21 @@
             } catch (e) { }
         }
 
-        function sndJump()   { sfx('triangle', 260, .14, .22, 520) }
-        function sndSlide()  { sfxNoise(.1, .18, 200, 800); sfx('sawtooth', 120, .1, .12, 60) }
-        function sndCoin()   { sfx('triangle', 880, .09, .18, 1320); }
+        function sndJump() { sfx('triangle', 260, .14, .22, 520) }
+        function sndSlide() { sfxNoise(.1, .18, 200, 800); sfx('sawtooth', 120, .1, .12, 60) }
+        function sndCoin() { sfx('triangle', 880, .09, .18, 1320); }
         function sndJollof() { sfx('square', 300, .08, .2, 600); sfx('square', 600, .15, .18, 1200) }
         function sndShield() { sfx('sine', 440, .2, .2, 880) }
-        function sndHit()    { sfxNoise(.22, .35, 80, 400); sfx('sawtooth', 80, .18, .3, 40) }
-        function sndOver()   { sfx('sawtooth', 220, .4, .3, 55, 'sawtooth'); }
-        function sndDistrict(){ sfx('triangle', 660, .12, .2, 880); sfx('triangle', 880, .12, .2, 1100) }
+        function sndHit() { sfxNoise(.22, .35, 80, 400); sfx('sawtooth', 80, .18, .3, 40) }
+        function sndOver() { sfx('sawtooth', 220, .4, .3, 55, 'sawtooth'); }
+        function sndDistrict() { sfx('triangle', 660, .12, .2, 880); sfx('triangle', 880, .12, .2, 1100) }
 
         // ── Afrobeats drum loop ───────────────────────────────────────────────
         let beatStep = 0, beatTimer = null;
         // 16-step patterns (1=on, 0=off) at ~112bpm
-        const KICK  = [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0];
-        const SNARE = [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0];
-        const HIHAT = [1,0,1,1,0,1,1,0,1,0,1,1,0,1,1,0];
+        const KICK = [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0];
+        const SNARE = [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0];
+        const HIHAT = [1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0];
         const STEP_MS = (60000 / 112) / 4; // 16th note at 112bpm ≈ 133ms
 
         function beatTick() {
@@ -303,7 +481,7 @@
             beatTimer = setTimeout(beatTick, STEP_MS);
         }
         function startMusic() { if (!musicPlaying && !muted) { musicPlaying = true; beatTick(); } }
-        function stopMusic()  { if (beatTimer) { clearTimeout(beatTimer); beatTimer = null; } musicPlaying = false; beatStep = 0; }
+        function stopMusic() { if (beatTimer) { clearTimeout(beatTimer); beatTimer = null; } musicPlaying = false; beatStep = 0; }
 
         // Mute button
         const muteBtn = document.getElementById('mute');
@@ -352,82 +530,82 @@
         function mkChar(opts) {
             const g = new THREE.Group();
             const skin = opts.skinColor, shirt = opts.torsoColor,
-                  pants = opts.pantsColor || '#1a2a5e',
-                  hair  = opts.hairColor  || '#1a0d00',
-                  accent= opts.accentColor|| '#f6b800';
+                pants = opts.pantsColor || '#1a2a5e',
+                hair = opts.hairColor || '#1a0d00',
+                accent = opts.accentColor || '#f6b800';
             const fwd = opts.faceCamera ? 1 : -1; // 1 = faces camera (+Z), -1 = faces running direction (-Z)
 
             // ── LEGS ─────────────────────────────────────────────────────
             // Hip at y=0.9. Thigh=0.45 down to knee at y=0.45. Shin=0.45 down to y=0 (ground).
             const lHip = new THREE.Group(); lHip.position.set(-.18, .9, 0); g.add(lHip);
-            const rHip = new THREE.Group(); rHip.position.set( .18, .9, 0); g.add(rHip);
-            const thighGeo = geo('CylinderGeometry',.13, .11, .45, 7);
+            const rHip = new THREE.Group(); rHip.position.set(.18, .9, 0); g.add(rHip);
+            const thighGeo = geo('CylinderGeometry', .13, .11, .45, 7);
             const lThigh = new THREE.Mesh(thighGeo, mat(pants)); lThigh.position.y = -.225; lHip.add(lThigh);
             const rThigh = new THREE.Mesh(thighGeo, mat(pants)); rThigh.position.y = -.225; rHip.add(rThigh);
             const lKnee = new THREE.Group(); lKnee.position.y = -.45; lHip.add(lKnee);
             const rKnee = new THREE.Group(); rKnee.position.y = -.45; rHip.add(rKnee);
-            const shinGeo = geo('CylinderGeometry',.1, .085, .45, 7);
+            const shinGeo = geo('CylinderGeometry', .1, .085, .45, 7);
             const lShin = new THREE.Mesh(shinGeo, mat(skin)); lShin.position.y = -.225; lKnee.add(lShin);
             const rShin = new THREE.Mesh(shinGeo, mat(skin)); rShin.position.y = -.225; rKnee.add(rShin);
-            const shoeGeo = geo('BoxGeometry',.24, .13, .38);
+            const shoeGeo = geo('BoxGeometry', .24, .13, .38);
             const lShoe = new THREE.Mesh(shoeGeo, mat('#1a1a2e')); lShoe.position.set(0, -.47, .06 * fwd); lKnee.add(lShoe);
             const rShoe = new THREE.Mesh(shoeGeo, mat('#1a1a2e')); rShoe.position.set(0, -.47, .06 * fwd); rKnee.add(rShoe);
 
             // ── TORSO ────────────────────────────────────────────────────
-            const torso = new THREE.Mesh(geo('CylinderGeometry',.3, .34, .75, 8), mat(shirt));
+            const torso = new THREE.Mesh(geo('CylinderGeometry', .3, .34, .75, 8), mat(shirt));
             torso.position.set(0, 1.275, 0); g.add(torso);
-            const strip = new THREE.Mesh(geo('BoxGeometry',.15, .36, .32), mat(accent));
+            const strip = new THREE.Mesh(geo('BoxGeometry', .15, .36, .32), mat(accent));
             strip.position.set(0, 1.28, .18 * fwd); g.add(strip);
 
             // ── ARMS ─────────────────────────────────────────────────────
             const lShoulder = new THREE.Group(); lShoulder.position.set(-.34, 1.58, 0); g.add(lShoulder);
-            const rShoulder = new THREE.Group(); rShoulder.position.set( .34, 1.58, 0); g.add(rShoulder);
-            const uArmGeo = geo('CylinderGeometry',.1, .09, .38, 6);
+            const rShoulder = new THREE.Group(); rShoulder.position.set(.34, 1.58, 0); g.add(rShoulder);
+            const uArmGeo = geo('CylinderGeometry', .1, .09, .38, 6);
             const lUArm = new THREE.Mesh(uArmGeo, mat(shirt)); lUArm.position.y = -.19; lShoulder.add(lUArm);
             const rUArm = new THREE.Mesh(uArmGeo, mat(shirt)); rUArm.position.y = -.19; rShoulder.add(rUArm);
             const lElbow = new THREE.Group(); lElbow.position.y = -.38; lShoulder.add(lElbow);
             const rElbow = new THREE.Group(); rElbow.position.y = -.38; rShoulder.add(rElbow);
-            const fArmGeo = geo('CylinderGeometry',.085, .075, .32, 6);
+            const fArmGeo = geo('CylinderGeometry', .085, .075, .32, 6);
             const lFArm = new THREE.Mesh(fArmGeo, mat(skin)); lFArm.position.y = -.16; lElbow.add(lFArm);
             const rFArm = new THREE.Mesh(fArmGeo, mat(skin)); rFArm.position.y = -.16; rElbow.add(rFArm);
-            const fistGeo = geo('SphereGeometry',.09, 6, 5);
+            const fistGeo = geo('SphereGeometry', .09, 6, 5);
             const lFist = new THREE.Mesh(fistGeo, mat(skin)); lFist.position.y = -.36; lElbow.add(lFist);
             const rFist = new THREE.Mesh(fistGeo, mat(skin)); rFist.position.y = -.36; rElbow.add(rFist);
 
             // ── NECK + HEAD ──────────────────────────────────────────────
-            const neck = new THREE.Mesh(geo('CylinderGeometry',.1, .12, .18, 7), mat(skin));
+            const neck = new THREE.Mesh(geo('CylinderGeometry', .1, .12, .18, 7), mat(skin));
             neck.position.set(0, 1.68, 0); g.add(neck);
             const headGrp = new THREE.Group(); headGrp.position.set(0, 1.95, 0); g.add(headGrp);
-            const headMesh = new THREE.Mesh(geo('SphereGeometry',.28, 10, 8), mat(skin));
+            const headMesh = new THREE.Mesh(geo('SphereGeometry', .28, 10, 8), mat(skin));
             headMesh.scale.set(1, 1.07, 1); headGrp.add(headMesh);
             function mkEye(ex) {
-                const scl = new THREE.Mesh(geo('SphereGeometry',.068, 6, 5), mat('#f0f0ea'));
+                const scl = new THREE.Mesh(geo('SphereGeometry', .068, 6, 5), mat('#f0f0ea'));
                 scl.position.set(ex, .05, .23 * fwd); headGrp.add(scl);
-                const pup = new THREE.Mesh(geo('SphereGeometry',.04, 5, 4), mat('#111'));
+                const pup = new THREE.Mesh(geo('SphereGeometry', .04, 5, 4), mat('#111'));
                 pup.position.set(ex, .05, .27 * fwd); headGrp.add(pup);
             }
             mkEye(-.1); mkEye(.1);
-            const nose = new THREE.Mesh(geo('ConeGeometry',.04, .12, 5), mat(skin));
+            const nose = new THREE.Mesh(geo('ConeGeometry', .04, .12, 5), mat(skin));
             nose.rotation.x = fwd * Math.PI / 2; nose.position.set(0, -.04, .26 * fwd); headGrp.add(nose);
 
             // ── HAIR / CAP ───────────────────────────────────────────────
             if (!opts.hasCap) {
-                const afroBig = new THREE.Mesh(geo('SphereGeometry',.36, 10, 8), mat(hair));
+                const afroBig = new THREE.Mesh(geo('SphereGeometry', .36, 10, 8), mat(hair));
                 afroBig.position.set(0, .26, 0); headGrp.add(afroBig);
-                const puffData = [[-.24,.28,.06,.22],[.24,.28,.06,.22],[0,.42,0,.2],[0,.3,-.2,.19],[-.16,.2,-.18,.17],[.16,.2,-.18,.17]];
+                const puffData = [[-.24, .28, .06, .22], [.24, .28, .06, .22], [0, .42, 0, .2], [0, .3, -.2, .19], [-.16, .2, -.18, .17], [.16, .2, -.18, .17]];
                 for (const pd of puffData) {
-                    const p = new THREE.Mesh(geo('SphereGeometry',pd[3], 7, 6), mat(hair));
+                    const p = new THREE.Mesh(geo('SphereGeometry', pd[3], 7, 6), mat(hair));
                     p.position.set(pd[0], pd[1], pd[2] * -fwd); headGrp.add(p);
                 }
             } else {
                 const capM = mat(opts.capColor || '#c0392b');
-                const brim = new THREE.Mesh(geo('CylinderGeometry',.34, .34, .06, 8), capM);
+                const brim = new THREE.Mesh(geo('CylinderGeometry', .34, .34, .06, 8), capM);
                 brim.position.y = .18; headGrp.add(brim);
-                const visor = new THREE.Mesh(geo('BoxGeometry',.28, .04, .18), capM);
+                const visor = new THREE.Mesh(geo('BoxGeometry', .28, .04, .18), capM);
                 visor.position.set(0, .17, .24 * fwd); headGrp.add(visor);
-                const top = new THREE.Mesh(geo('CylinderGeometry',.25, .3, .28, 8), capM);
+                const top = new THREE.Mesh(geo('CylinderGeometry', .25, .3, .28, 8), capM);
                 top.position.y = .37; headGrp.add(top);
-                const badge = new THREE.Mesh(geo('BoxGeometry',.1, .08, .03), mat(accent));
+                const badge = new THREE.Mesh(geo('BoxGeometry', .1, .08, .03), mat(accent));
                 badge.position.set(0, .35, .28 * fwd); headGrp.add(badge);
             }
             g.u = { lHip, rHip, lKnee, rKnee, lShoulder, rShoulder, lElbow, rElbow, headGrp };
@@ -439,12 +617,12 @@
             if (!g.u) return;
             const u = g.u, s = spd01;
             const lg = Math.sin(t * 14) * s * .9;
-            u.lHip.rotation.x =  lg;
+            u.lHip.rotation.x = lg;
             u.rHip.rotation.x = -lg;
             u.lKnee.rotation.x = Math.max(0, -lg) * .85;
-            u.rKnee.rotation.x = Math.max(0,  lg) * .85;
+            u.rKnee.rotation.x = Math.max(0, lg) * .85;
             u.lShoulder.rotation.x = -lg * .75 - .2;
-            u.rShoulder.rotation.x =  lg * .75 - .2;
+            u.rShoulder.rotation.x = lg * .75 - .2;
             u.lElbow.rotation.x = Math.abs(Math.sin(t * 14)) * s * .35 + .3;
             u.rElbow.rotation.x = Math.abs(Math.cos(t * 14)) * s * .35 + .3;
             u.headGrp.position.y = 1.95 + Math.abs(Math.sin(t * 14)) * s * .055;
@@ -456,8 +634,8 @@
 
         // ── Instantiate characters ────────────────────────────────────────────
         let P = null;
-        const sh = new THREE.Mesh(new THREE.CircleGeometry(.6, 8), new THREE.MeshBasicMaterial({ color:0, transparent:true, opacity:.35 }));
-        sh.rotation.x = -Math.PI/2; sh.position.y = .03; S.add(sh);
+        const sh = new THREE.Mesh(new THREE.CircleGeometry(.6, 8), new THREE.MeshBasicMaterial({ color: 0, transparent: true, opacity: .35 }));
+        sh.rotation.x = -Math.PI / 2; sh.position.y = .03; S.add(sh);
         // ── Outfit shop (in-game naira, saved on this device) ─────────────────
         const OUT = [
             { id: 'green', n: 'Naija Green', p: 0, t: '#0a7d3e', a: '#f6b800', l: '#1a2a5e' },
@@ -499,20 +677,20 @@
         $('sb').onclick = () => { $('smsg').textContent = ''; renderShop(); $('shop').classList.remove('hide') };
         $('bk').onclick = () => $('shop').classList.add('hide');
         buildP(); updSb();
-        const CD = mkChar({ torsoColor:'#fff8e8', skinColor:'#5a3820', accentColor:'#c0392b', pantsColor:'#333', hairColor:'#1a0d00', hasCap:true, capColor:'#c0392b' });
+        const CD = mkChar({ torsoColor: '#fff8e8', skinColor: '#5a3820', accentColor: '#c0392b', pantsColor: '#333', hairColor: '#1a0d00', hasCap: true, capColor: '#c0392b' });
         CD.scale.setScalar(1.15); S.add(CD);
-        const aura = new THREE.Mesh(new THREE.SphereGeometry(1.5,8,6), new THREE.MeshBasicMaterial({ color:'#4aa8ff', transparent:true, opacity:.28 })); aura.visible=false; S.add(aura);
+        const aura = new THREE.Mesh(new THREE.SphereGeometry(1.5, 8, 6), new THREE.MeshBasicMaterial({ color: '#4aa8ff', transparent: true, opacity: .28 })); aura.visible = false; S.add(aura);
         // obstacles
         function danfo() {
-            const g = new THREE.Group(); box(2,1.5,4.2,Y,0,1,0,g); box(2.04,.28,4.24,K,0,.9,0,g); box(2.02,.5,3.4,'#222',0,1.55,0,g); box(1.9,.12,4,Y,0,1.8,0,g);
-            for (const x of [-.9,.9]) for (const z of [-1.4,1.4]) box(.25,.7,.7,K,x,.35,z,g); return g
+            const g = new THREE.Group(); box(2, 1.5, 4.2, Y, 0, 1, 0, g); box(2.04, .28, 4.24, K, 0, .9, 0, g); box(2.02, .5, 3.4, '#222', 0, 1.55, 0, g); box(1.9, .12, 4, Y, 0, 1.8, 0, g);
+            for (const x of [-.9, .9]) for (const z of [-1.4, 1.4]) box(.25, .7, .7, K, x, .35, z, g); return g
         }
         function keke() {
-            const g = new THREE.Group(); box(1.5,1,2.2,G,0,.8,0,g); box(1.6,.12,2.3,Y,0,1.4,0,g); box(1.3,.4,.1,'#222',0,1.05,1.1,g);
-            for (const x of [-.7,.7]) box(.2,.6,.6,K,x,.3,.6,g); box(.3,.5,.5,K,0,.25,-.9,g); return g
+            const g = new THREE.Group(); box(1.5, 1, 2.2, G, 0, .8, 0, g); box(1.6, .12, 2.3, Y, 0, 1.4, 0, g); box(1.3, .4, .1, '#222', 0, 1.05, 1.1, g);
+            for (const x of [-.7, .7]) box(.2, .6, .6, K, x, .3, .6, g); box(.3, .5, .5, K, 0, .25, -.9, g); return g
         }
-        function pothole() { const m = new THREE.Mesh(new THREE.CylinderGeometry(1,1,.06,8), mat('#0e0f12')); m.position.y=.04; const g=new THREE.Group(); g.add(m); return g }
-        function bridge() { const g=new THREE.Group(); for (const x of [-1.15,1.15]) box(.25,2.8,.25,'#444',x,1.4,0,g); box(2.6,1.2,.3,G,0,2.0,0,g); box(2.2,.3,.34,Y,0,2.0,0,g); return g }
+        function pothole() { const m = new THREE.Mesh(new THREE.CylinderGeometry(1, 1, .06, 8), mat('#0e0f12')); m.position.y = .04; const g = new THREE.Group(); g.add(m); return g }
+        function bridge() { const g = new THREE.Group(); for (const x of [-1.15, 1.15]) box(.25, 2.8, .25, '#444', x, 1.4, 0, g); box(2.6, 1.2, .3, G, 0, 2.0, 0, g); box(2.2, .3, .34, Y, 0, 2.0, 0, g); return g }
         function hawker() {
             const g = new THREE.Group();
             const l1 = box(.28, .8, .3, '#2a1a0a', -.2, .4, 0, g), l2 = box(.28, .8, .3, '#2a1a0a', .2, .4, 0, g);
@@ -520,7 +698,7 @@
             box(1.2, .12, 1, '#f2efe6', 0, 2.5, 0, g); box(.8, .22, .7, '#e8501c', 0, 2.67, 0, g);
             g.h = { l1, l2 }; return g;
         }
-        
+
         function flood() { const g = new THREE.Group(); box(14.2, .05, 5, '#4a90b8', 0, .03, 0, g); box(14.2, .02, 5.2, '#2f6f94', 0, .015, 0, g); return g }
         const OT = { danfo: { f: danfo, hd: 2.1 }, keke: { f: keke, hd: 1.1 }, pot: { f: pothole, hd: 1 }, bridge: { f: bridge, hd: .4 }, hawker: { f: hawker, hd: .5 }, flood: { f: flood, hd: 2.5 } };
         const jolG = new THREE.CylinderGeometry(.55, .45, .35, 8), jolM = new THREE.MeshLambertMaterial({ color: '#e8501c', emissive: '#7a2208' }), shG = new THREE.OctahedronGeometry(.55), shM = new THREE.MeshLambertMaterial({ color: '#4aa8ff', emissive: '#1b4f8a' });
@@ -573,7 +751,7 @@
         const score = () => Math.floor(dist) + nrs * 10;
         function start(d) {
             // Resume AudioContext on first user gesture (browser autoplay policy)
-            try { getAC().resume() } catch(e) {}
+            try { getAC().resume() } catch (e) { }
             daily = !!d; reset(); st = 'play'; $('ov').classList.add('hide');
             stopMusic(); musicPlaying = false; beatStep = 0;
             if (!muted) setTimeout(startMusic, 200);
@@ -593,7 +771,13 @@
         function cloudSave() { if (!V) return; clearTimeout(saveT); saveT = setTimeout(() => srv('/api/save', { wallet, owned, eq }), 1500) }
         async function claim(p) {
             const r = await srv('/api/claim', { purchaseId: p.purchaseId });
-           if (r.ok) { gems = r.json.gems; updG(); $('smsg').textContent = '💎 Gems added!' } else $('smsg').textContent = 'Paid, but the gems are not added yet. Reopen the game and they will arrive.'
+            if (r.ok) {
+                gems = r.json.gems; updG();
+                $('smsg').textContent = r.json.delivered === false ? 'Gems added, but delivery was not confirmed (' + r.json.dhttp + ').' : '💎 Gems added!';
+            } else {
+                const m = 'Paid, but gems not added yet (' + (r.json.why || r.status) + '). Reopen the game to retry.';
+                $('smsg').textContent = m; toast(m);
+            }
         }
         function buyGems(id) { if (!V) return; $('smsg').textContent = ''; Vatar.purchase(id).then(claim).catch(e => { if (e.code !== 'cancelled') $('smsg').textContent = 'The payment did not go through.' }) }
         function gemFound() {
@@ -664,7 +848,7 @@
         }
         addEventListener('keydown', e => {
             const k = e.key;
-            if (st !== 'play') { if (!$('shop').classList.contains('hide') || !$('lb').classList.contains('hide')) return; if (k === 'Enter' || k === ' ') { try { getAC().resume() } catch(e) {} start(); } return }
+            if (st !== 'play') { if (!$('shop').classList.contains('hide') || !$('lb').classList.contains('hide')) return; if (k === 'Enter' || k === ' ') { try { getAC().resume() } catch (e) { } start(); } return }
             if (k === 'ArrowLeft' || k === 'a') act('L'); else if (k === 'ArrowRight' || k === 'd') act('R'); else if (k === 'ArrowUp' || k === 'w' || k === ' ') act('U'); else if (k === 'ArrowDown' || k === 's') act('D');
             if (k.startsWith('Arrow') || k === ' ') e.preventDefault()
         });
